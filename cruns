@@ -1,0 +1,101 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+my $acct = @ARGV==1 ? $ARGV[0] : "atks";
+
+my $host = `hostname`;
+
+my @gateways = ();
+
+if ($host =~ /(fantasia|wonderland|snowhite)/)
+{
+    @gateways = ("fantasia", "wonderland", "snowwhite");
+}
+else
+{
+    push(@gateways, $host);
+}
+
+my %LOG = ();
+my %ULOG = ();
+my $total = 0;
+my $userTotal = 0;
+for my $gateway (@gateways)
+{
+    my $cmd;
+    if ($gateway =~ /(fantasia|wonderland|snowwhite)/)
+    {
+        $cmd = "ssh $acct@" . $gateway . " 'mosps -eu | tail -n +2'";
+    }
+    else
+    {
+        $cmd = "mosps -eu | tail -n +2"
+    }
+    
+    my $c = `$cmd`;
+
+    my @jobs = split("\n", $c);
+    my %TNODE = ();
+    for my $job (@jobs)
+    {
+        my ($user, $pid, $node, $rest) = split(/\s+/, $job);
+
+        next if ($node =~ /wait/);
+        
+        if (!exists($LOG{$node}))
+        {
+            $LOG{$node} = 0;
+            $ULOG{$node} = 0;
+        }
+
+        if ($user eq "atks")
+        {
+            ++$ULOG{$node};
+            ++$userTotal;
+        }
+
+        ++$LOG{$node};
+        ++$total;
+        
+    }
+}
+
+$host =~ s/^\s+//;
+$host =~ s/\s+$//;
+
+print "\n\t$host\n";
+print "\t" . ("=" x length($host)) . "\n";
+if (scalar(keys(%LOG))==0)
+{
+    printf("\ttotal: 0 jobs\n");
+}
+else
+{
+    if ($host =~ /(fantasia|wonderland|snowwhite)/)
+    {
+        print "\tnode  usr(sum)  node  usr(sum)  node  usr(sum) \n";
+        my $i = 0;
+        for my $node (sort {$LOG{$b} <=> $LOG{$a}} keys(%LOG))
+        {
+            print "\n" if ($i!=0 && $i%3==0);
+            printf("\t%4s  %3d(%3d)", $node, $ULOG{$node}, $LOG{$node});
+    
+            ++$i;        
+        }
+        print "\n\n";
+        printf("\t atks: %3d jobs\n", $userTotal);
+        printf("\ttotal: %3d jobs\n\n", $total);
+    }
+    else
+    {
+        print "\tnode  usr(sum)\n";
+        for my $node (sort {$a <=> $b} keys(%LOG))
+        {
+            printf("\t%4s  %3d(%3d)\n", $node, $ULOG{$node}, $LOG{$node});
+        }
+        print "\n";
+        printf("\t $acct: %3d jobs\n", $userTotal);
+        printf("\ttotal: %3d jobs\n\n", $total);
+    }
+}

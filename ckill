@@ -1,0 +1,7 @@
+#! /bin/bash
+
+mosps -eu | grep atks | tr -s  ' ' '\t' | distinct -c3 -k
+
+mosps -eu | grep atks | tr -s  ' ' '\t'  | perl -lane '{print "kill -9 $F[1]"}' | sh
+
+mosps -eu | grep atks | tr -s  ' ' '\t' | distinct -c3 -k

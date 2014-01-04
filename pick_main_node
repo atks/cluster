@@ -1,0 +1,81 @@
+#!/usr/bin/perl -w
+
+# The MIT License
+#
+# Copyright (c) 2014 Goo Jun <gjun@umich.edu> Adrian Tan <atks@umich.edu>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# This was modified from Goo's pick_mainnode script
+# 
+# 1. modified to take into account all the nodes running on the main cluster
+#    before distributing the jobs. For this to work, the user's pass phrase
+#    for his private key should be removed.
+# 2. modified to take in the number of seconds to randomize for sleep
+#    time. 0 seconds is the default.
+
+use strict;
+use warnings;
+
+sleep(int(rand()*(@ARGV ? $ARGV[0]: 0)));
+
+my @nodes = ();
+my %cnt = ();
+
+open(IN, "/net/fantasia/home/atks/programs/cluster/good_node_list.txt");
+my $ln = <IN>;
+chomp($ln);
+@nodes = split(",",$ln);
+foreach my $n (@nodes)
+{
+	$cnt{$n} = 0;
+}
+
+for my $gateway ("fantasia", "wonderland", "snowwhite")
+{
+    my $cmd = "ssh atks@" . $gateway . " 'mosps -eu | tail -n +2'";
+    my $c = `$cmd`;
+    my @jobs = split("\n", $c);
+
+    for my $job (@jobs)
+    {
+        my ($user, $pid, $node, $rest) = split(/\s+/, $job);
+        $cnt{$node}++;
+    }
+}
+
+my %tie = ();
+my $min = 10000;
+foreach my $n (@nodes)
+{   
+    if ($cnt{$n}<$min)
+	{
+	    %tie = ();
+	    $tie{$n} = 1;
+		$min = $cnt{$n};
+	}
+	elsif ($cnt{$n}==$min)
+	{
+        $tie{$n} = 1;
+	}
+}
+
+my @tie = keys(%tie);
+my $pick = $tie[int(rand(@tie))];
+print $pick;

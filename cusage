@@ -1,0 +1,96 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+my $acct = @ARGV==1 ? $ARGV[0] : "atks";
+
+my %LOG;
+
+for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm", "1000g", "assembly", "bipolar", "psoriasis", "t2dgenes", "got2d", "hunt", "amd", "sardinia", "twins", "esp")
+{
+    my $cmd = "";
+    if ($gateway eq "slurm")
+    {
+        $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
+    }
+    else
+    {
+        $cmd = "ssh $acct@" . $gateway . " 'mosps -eu | tail -n +2'";
+    }
+    
+    my %MINI_LOG = ();
+    my $c = `$cmd`;
+    my @jobs = split("\n", $c);
+    my %TNODE = ();
+    
+    for my $job (@jobs)
+    {
+        my ($user, $pid, $node, $rest) = split(/\s+/, $job);
+
+        if ($gateway eq "slurm")
+        {   
+            if (!exists($TNODE{$node})) 
+            {
+                my $cmd1 = "ssh $acct\@" . "fantasia \"mosctl whois $node\"";
+                my $newNode = `$cmd1`;
+                $TNODE{$node} = $newNode;
+                $node = $newNode;
+            }
+            else
+            {
+                $node = $TNODE{$node}; 
+            }
+        }
+    
+        ++$MINI_LOG{$user};
+
+        if ($gateway =~ /(fantasia|wonderland|snowwhite|slurm)/)
+        {
+            if ($gateway eq "slurm")
+            {
+                $user = "#$user";
+            }
+            ++$LOG{$user};
+        }
+    }
+
+    print "$gateway\n";
+    if (scalar(keys(%MINI_LOG))==0)
+    {
+        printf("\t                    0 jobs\n");
+    }
+    else
+    {
+        for my $user (keys(%MINI_LOG))
+        {
+            printf("\t%10s %10d jobs\n", $user, $MINI_LOG{$user});
+        }
+    }
+    print "\n";
+   
+    if ($gateway eq "slurm")
+    {
+        print "\t**************************\n";
+        print "\t       MAIN CLUSTER       \n";
+        print "\t**************************\n";
+
+        if (scalar(keys(%LOG))==0)
+        {
+            printf("\t                    0 jobs\n");
+        }
+        else
+        {
+            my $totalJobs = 0;
+            for my $user (keys(%LOG))
+            {
+                printf("\t%10s %10d jobs\n", $user, $LOG{$user});
+                $totalJobs += $LOG{$user};
+            }
+            print "\t==========================\n";
+            printf("\t%10s %10d jobs\n", "total", $totalJobs);
+            print "\n";
+            print "\t# - slurm managed\n";    
+            print "\n";
+        }
+    }    
+}
