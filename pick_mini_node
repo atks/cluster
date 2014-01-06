@@ -36,10 +36,11 @@ my @cnt = (0, 0, 0, 0);
 my $min = 10000;
 my $pick = 0;
 
-open(IN, "mosps x|tail -n +2|");
+open(IN, "mosps -eu |tail -n +2|");
 while(<IN>)
 {
-    my ($pid, $node) = split;
+    my ($user, $pid, $node) = split(/\s+/);
+    
     $cnt[$node-10]++;
 }
 close IN;
