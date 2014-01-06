@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $acct = @ARGV==1 ? $ARGV[0] : "atks";
+my $usr = @ARGV==1 ? $ARGV[0] : "atks";
 
 my $host = `hostname`;
 
@@ -26,7 +26,7 @@ for my $gateway (@gateways)
     my $cmd;
     if ($gateway =~ /(fantasia|wonderland|snowwhite)/)
     {
-        $cmd = "ssh $acct@" . $gateway . " 'mosps -eu | tail -n +2'";
+        $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
     }
     else
     {
@@ -84,8 +84,8 @@ else
             ++$i;        
         }
         print "\n\n";
-        printf("\t atks: %3d jobs\n", $userTotal);
-        printf("\ttotal: %3d jobs\n\n", $total);
+        printf("\t $usr: %4d jobs\n", $userTotal);
+        printf("\ttotal: %4d jobs\n\n", $total);
     }
     else
     {
@@ -95,7 +95,7 @@ else
             printf("\t%4s  %3d(%3d)\n", $node, $ULOG{$node}, $LOG{$node});
         }
         print "\n";
-        printf("\t $acct: %3d jobs\n", $userTotal);
-        printf("\ttotal: %3d jobs\n\n", $total);
+        printf("\t $usr: %4d jobs\n", $userTotal);
+        printf("\ttotal: %4d jobs\n\n", $total);
     }
 }
