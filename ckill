@@ -2,6 +2,8 @@
 
 mosps -eu | grep atks | tr -s  ' ' '\t' | distinct -c3 -k
 
+ps -ef | grep atks | grep mosbatch | grep -v grep | tr -s  ' ' '\t'  | perl -lane '{print "kill -9 $F[1]"}' | sh
+
 mosps -eu | grep atks | tr -s  ' ' '\t'  | perl -lane '{print "kill -9 $F[1]"}' | sh
 
 mosps -eu | grep atks | tr -s  ' ' '\t' | distinct -c3 -k
