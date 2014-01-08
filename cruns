@@ -66,36 +66,29 @@ $host =~ s/\s+$//;
 
 print "\n\t$host\n";
 print "\t" . ("=" x length($host)) . "\n";
-if (scalar(keys(%LOG))==0)
+if ($host =~ /(fantasia|wonderland|snowwhite)/)
 {
-    printf("\ttotal: 0 jobs\n");
+    print "\tnode  usr(sum)  node  usr(sum)  node  usr(sum) \n";
+    my $i = 0;
+    for my $node (sort {$LOG{$b} <=> $LOG{$a}} keys(%LOG))
+    {
+        print "\n" if ($i!=0 && $i%3==0);
+        printf("\t%4s  %3d(%3d)", $node, $ULOG{$node}, $LOG{$node});
+
+        ++$i;        
+    }
+    print "\n\n";
+    printf("\t $usr: %4d jobs\n", $userTotal);
+    printf("\ttotal: %4d jobs\n\n", $total);
 }
 else
 {
-    if ($host =~ /(fantasia|wonderland|snowwhite)/)
+    print "\tnode  usr(sum)\n";
+    for my $node (sort {$a <=> $b} keys(%LOG))
     {
-        print "\tnode  usr(sum)  node  usr(sum)  node  usr(sum) \n";
-        my $i = 0;
-        for my $node (sort {$LOG{$b} <=> $LOG{$a}} keys(%LOG))
-        {
-            print "\n" if ($i!=0 && $i%3==0);
-            printf("\t%4s  %3d(%3d)", $node, $ULOG{$node}, $LOG{$node});
-    
-            ++$i;        
-        }
-        print "\n\n";
-        printf("\t $usr: %4d jobs\n", $userTotal);
-        printf("\ttotal: %4d jobs\n\n", $total);
+        printf("\t%4s  %3d(%3d)\n", $node, $ULOG{$node}, $LOG{$node});
     }
-    else
-    {
-        print "\tnode  usr(sum)\n";
-        for my $node (sort {$a <=> $b} keys(%LOG))
-        {
-            printf("\t%4s  %3d(%3d)\n", $node, $ULOG{$node}, $LOG{$node});
-        }
-        print "\n";
-        printf("\t $usr: %4d jobs\n", $userTotal);
-        printf("\ttotal: %4d jobs\n\n", $total);
-    }
+    print "\n";
+    printf("\t $usr: %4d jobs\n", $userTotal);
+    printf("\ttotal: %4d jobs\n\n", $total);
 }
