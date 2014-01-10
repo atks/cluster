@@ -49,7 +49,7 @@ for my $gateway (@gateways)
             $ULOG{$node} = 0;
         }
 
-        if ($user eq "atks")
+        if ($user eq $usr)
         {
             ++$ULOG{$node};
             ++$userTotal;
