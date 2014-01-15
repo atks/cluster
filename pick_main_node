@@ -35,10 +35,11 @@ use warnings;
 
 sleep(int(rand()*(@ARGV ? $ARGV[0]: 0)));
 
-$usr = "atks";
+my $usr = "atks";
 
 my %TNODE = ();
 my %cnt = ();
+my @nodes = ();
 
 open(IN, "/net/fantasia/home/atks/programs/cluster/good_node_list.txt");
 while(<IN>)
@@ -46,13 +47,10 @@ while(<IN>)
     chomp;
     my ($node, $newNode) = split("\t");
     $TNODE{$newNode} = $node;
+    $cnt{$node} = 0;
+    push(@nodes, $node);
 }
 close(IN);
-
-foreach my $n (@nodes)
-{
-	$cnt{$n} = 0;
-}
 
 for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm")
 {
