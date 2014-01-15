@@ -35,27 +35,60 @@ use warnings;
 
 sleep(int(rand()*(@ARGV ? $ARGV[0]: 0)));
 
-my @nodes = ();
+$usr = "atks";
+
+my %TNODE = ();
 my %cnt = ();
 
 open(IN, "/net/fantasia/home/atks/programs/cluster/good_node_list.txt");
-my $ln = <IN>;
-chomp($ln);
-@nodes = split(",",$ln);
+while(<IN>)
+{
+    chomp;
+    my ($node, $newNode) = split("\t");
+    $TNODE{$newNode} = $node;
+}
+close(IN);
+
 foreach my $n (@nodes)
 {
 	$cnt{$n} = 0;
 }
 
-for my $gateway ("fantasia", "wonderland", "snowwhite")
+for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm")
 {
-    my $cmd = "ssh atks@" . $gateway . " 'mosps -eu | tail -n +2'";
+    my $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
+    if ($gateway eq "slurm")
+    {
+        $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
+    }
+    else
+    {
+        $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
+    }
+        
     my $c = `$cmd`;
     my @jobs = split("\n", $c);
 
     for my $job (@jobs)
     {
         my ($user, $pid, $node, $rest) = split(/\s+/, $job);
+        
+        if ($gateway eq "slurm")
+        {
+            if (!exists($TNODE{$node})) 
+            {
+                my $cmd1 = "ssh $usr\@" . "fantasia \"mosctl whois $node\"";
+                print $cmd1 . "\n";
+                my $newNode = `$cmd1`;
+                $TNODE{$node} = $newNode;
+                $node = $newNode;
+            }
+            else
+            {
+                $node = $TNODE{$node}; 
+            }
+        }
+        
         $cnt{$node}++;
     }
 }
