@@ -6,6 +6,17 @@ my $acct = @ARGV==1 ? $ARGV[0] : "atks";
 
 my %LOG;
 
+my %TNODE = ();
+open(IN, "/net/fantasia/home/atks/programs/cluster/good_node_list.txt");
+while(<IN>)
+{
+    chomp;
+    my ($node, $newNode) = split("\t");
+    $TNODE{$newNode} = $node;
+}
+close(IN);
+
+
 for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm", "1000g", "assembly", "bipolar", "psoriasis", "t2dgenes", "got2d", "hunt", "amd", "sardinia", "twins", "esp")
 {
     my $cmd = "";
@@ -21,8 +32,7 @@ for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm", "1000g", "assem
     my %MINI_LOG = ();
     my $c = `$cmd`;
     my @jobs = split("\n", $c);
-    my %TNODE = ();
-    
+        
     for my $job (@jobs)
     {
         my ($user, $pid, $node, $rest) = split(/\s+/, $job);
@@ -32,6 +42,8 @@ for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm", "1000g", "assem
             if (!exists($TNODE{$node})) 
             {
                 my $cmd1 = "ssh $acct\@" . "fantasia \"mosctl whois $node\"";
+                
+                print $cmd1 . "\n";
                 my $newNode = `$cmd1`;
                 $TNODE{$node} = $newNode;
                 $node = $newNode;
