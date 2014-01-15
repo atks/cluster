@@ -5,17 +5,25 @@ use warnings;
 my $usr = @ARGV==1 ? $ARGV[0] : "atks";
 
 my $host = `hostname`;
-
 my @gateways = ();
-
 if ($host =~ /(fantasia|wonderland|snowhite)/)
 {
-    @gateways = ("fantasia", "wonderland", "snowwhite");
+    @gateways = ("fantasia", "wonderland", "snowwhite", "slurm");
 }
 else
 {
     push(@gateways, $host);
 }
+
+my %TNODE = ();
+open(IN, "/net/fantasia/home/atks/programs/cluster/good_node_list.txt");
+while(<IN>)
+{
+    chomp;
+    my ($node, $newNode) = split("\t");
+    $TNODE{$newNode} = $node;
+}
+close(IN);
 
 my %LOG = ();
 my %ULOG = ();
@@ -26,23 +34,48 @@ for my $gateway (@gateways)
     my $cmd;
     if ($gateway =~ /(fantasia|wonderland|snowwhite)/)
     {
-        $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
+        if ($host eq $gateway)
+        {
+            $cmd = "mosps -eu | tail -n +2"
+        }
+        else
+        {
+            $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
+        }
+    }
+    elsif ($gateway eq "slurm")
+    {
+        $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
     }
     else
     {
         $cmd = "mosps -eu | tail -n +2"
     }
-    
+
     my $c = `$cmd`;
 
     my @jobs = split("\n", $c);
-    my %TNODE = ();
     for my $job (@jobs)
     {
         my ($user, $pid, $node, $rest) = split(/\s+/, $job);
-
         next if ($node =~ /wait/);
-        
+
+        if ($gateway eq "slurm")
+        {
+            if (!exists($TNODE{$node}))
+            {
+                my $cmd1 = "ssh $usr\@" . "fantasia \"mosctl whois $node\"";
+                print $cmd1 . "\n";
+                my $newNode = `$cmd1`;
+                $TNODE{$node} = $newNode;
+                $node = $newNode;
+            }
+            else
+            {
+                $node = $TNODE{$node};
+            }
+        }
+
         if (!exists($LOG{$node}))
         {
             $LOG{$node} = 0;
@@ -57,7 +90,6 @@ for my $gateway (@gateways)
 
         ++$LOG{$node};
         ++$total;
-        
     }
 }
 
@@ -75,7 +107,7 @@ if ($host =~ /(fantasia|wonderland|snowwhite)/)
         print "\n" if ($i!=0 && $i%3==0);
         printf("\t%4s  %3d(%3d)", $node, $ULOG{$node}, $LOG{$node});
 
-        ++$i;        
+        ++$i;
     }
     print "\n\n";
     printf("\t $usr: %4d jobs\n", $userTotal);
