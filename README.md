@@ -14,3 +14,5 @@ generate_good_node_list   generates list of nodes with the node number and its c
 pick_main_node            picks a main node to use with the least jobs based on surveying fantasia/wonderland/snowwhite/slurm.
 pick_mini_node            picks a node to use on minicluster with 4 nodes.
 pick_mini+_node           picks a node to use on minicluster with 8 nodes.
+
+# pick_*_nodes are modified from Goo's original scripts.
