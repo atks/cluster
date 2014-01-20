@@ -25,7 +25,24 @@
 use strict;
 use warnings;
 
-my $usr = @ARGV==1 ? $ARGV[0] : "atks";
+my $usr;
+my $target_usr;
+
+if (@ARGV==0)
+{
+    $usr = "atks";
+    $target_usr = $usr;
+}
+elsif (@ARGV==1)
+{
+    $usr = $ARGV[0];
+    $target_usr = $ARGV[0];
+}
+elsif (@ARGV==2)
+{
+    $usr = $ARGV[0];
+    $target_usr = $ARGV[1];
+}
 
 my $host = `hostname`;
 my @gateways = ();
@@ -105,7 +122,7 @@ for my $gateway (@gateways)
             $ULOG{$node} = 0;
         }
 
-        if ($user eq $usr)
+        if ($user eq $target_usr)
         {
             ++$ULOG{$node};
             ++$userTotal;
@@ -133,8 +150,8 @@ if ($host =~ /(fantasia|wonderland|snowwhite)/)
         ++$i;
     }
     print "\n\n";
-    printf("\t $usr: %4d jobs\n", $userTotal);
-    printf("\ttotal: %4d jobs\n\n", $total);
+    printf("\t%8s: %4d jobs\n", $target_usr, $userTotal);
+    printf("\t   total: %4d jobs\n\n", $total);
 }
 else
 {
