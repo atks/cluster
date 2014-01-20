@@ -1,9 +1,7 @@
 #! /bin/bash
 
-mosps -eu | grep atks | tr -s  ' ' '\t' | distinct -c3 -k
-
-ps -ef | grep atks | grep mosbatch | grep -v grep | tr -s  ' ' '\t'  | perl -lane '{print "kill -9 $F[1]"}' | sh
-
-mosps -eu | grep atks | tr -s  ' ' '\t'  | perl -lane '{print "kill -9 $F[1]"}' | sh
-
-mosps -eu | grep atks | tr -s  ' ' '\t' | distinct -c3 -k
+USR=atks
+mosps -eu | grep $USR | tr -s  ' ' '\t' | cut -f3 | uniq -c
+ps -ef | grep $USR| grep mosbatch | grep -v grep | tr -s  ' ' '\t'  | perl -lane '{print "kill -9 $F[1]"}' | sh
+mosps -eu | grep $USR | tr -s  ' ' '\t'  | perl -lane '{print "kill -9 $F[1]"}' | sh
+mosps -eu | grep $USR | tr -s  ' ' '\t' | cut -f3 | uniq -c
