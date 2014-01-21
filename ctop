@@ -1,0 +1,1 @@
+mosbatch -E/tmp -r$1 /bin/bash -c "top -b -n1"
