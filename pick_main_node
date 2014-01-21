@@ -73,7 +73,7 @@ for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm")
         
         if ($gateway eq "slurm")
         {
-            if ($node eq "(none)")
+            if ($node eq "(None)")
             {
                 next;
             }
