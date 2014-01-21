@@ -73,6 +73,11 @@ for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm")
         
         if ($gateway eq "slurm")
         {
+            if ($node eq "(none)")
+            {
+                next;
+            }
+            
             if (!exists($TNODE{$node})) 
             {
                 my $cmd1 = "ssh $usr\@" . "fantasia \"mosctl whois $node\"";
