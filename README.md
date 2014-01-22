@@ -4,7 +4,7 @@ cluster
 Some useful tools for UM Statgen clusters
 
 * ckill                     kills mosbatch jobs that are sleeping on the gateway and those active on the cluster nodes.
-* cruns                     sees jobs running on a gateway that you are on right now.
+* cruns <usr>               sees jobs flagging <usr> which is default you running on a gateway that you are on right now.
 * cusage                    sees jobs summarized by user on all gateways.
 * ctop                      sees top output of a node.
 * generate_good_node_list   generates list of nodes with the node number and its corresponding slurm name separated by a tab. 
