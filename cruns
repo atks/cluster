@@ -43,17 +43,12 @@ my $target_usr;
 if (@ARGV==0)
 {
     $usr = $defaultUser;
-    $target_usr = $usr;
+    $target_usr = $defaultUser;
 }
 elsif (@ARGV==1)
 {
-    $usr = $ARGV[0];
+    $usr = $defaultUser;
     $target_usr = $ARGV[0];
-}
-elsif (@ARGV==2)
-{
-    $usr = $ARGV[0];
-    $target_usr = $ARGV[1];
 }
 
 my $host = `hostname`;
