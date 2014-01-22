@@ -25,7 +25,18 @@
 use strict;
 use warnings;
 
-my $acct = @ARGV==1 ? $ARGV[0] : "atks";
+my $executablePath = __FILE__;
+$executablePath =~ s/[^\/]+$//;
+my $defaultUser = "atks";
+my $configFile = $executablePath . ".config";
+if (-e $configFile)
+{
+    open(IN, $configFile) || die "Cannot open config file";
+    $defaultUser = <IN>;
+    chomp($defaultUser);
+    close(IN);   
+}
+my $acct = @ARGV==1 ? $ARGV[0] : $defaultUser;
 
 my %LOG;
 

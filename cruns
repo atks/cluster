@@ -25,12 +25,24 @@
 use strict;
 use warnings;
 
+my $executablePath = __FILE__;
+$executablePath =~ s/[^\/]+$//;
+my $defaultUser = "atks";
+my $configFile = $executablePath . ".config";
+if (-e $configFile)
+{
+    open(IN, $configFile) || die "Cannot open config file";
+    $defaultUser = <IN>;
+    chomp($defaultUser);
+    close(IN);   
+}
+
 my $usr;
 my $target_usr;
 
 if (@ARGV==0)
 {
-    $usr = "atks";
+    $usr = $defaultUser;
     $target_usr = $usr;
 }
 elsif (@ARGV==1)
@@ -161,6 +173,6 @@ else
         printf("\t%4s  %3d(%3d)\n", $node, $ULOG{$node}, $LOG{$node});
     }
     print "\n";
-    printf("\t $usr: %4d jobs\n", $userTotal);
-    printf("\ttotal: %4d jobs\n\n", $total);
+    printf("\t%8s: %4d jobs\n", $target_usr, $userTotal);
+    printf("\t   total: %4d jobs\n\n", $total);
 }

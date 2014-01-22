@@ -33,9 +33,21 @@
 use strict;
 use warnings;
 
+my $executablePath = __FILE__;
+$executablePath =~ s/[^\/]+$//;
+my $defaultUser = "atks";
+my $configFile = $executablePath . ".config";
+if (-e $configFile)
+{
+    open(IN, $configFile) || die "Cannot open config file";
+    $defaultUser = <IN>;
+    chomp($defaultUser);
+    close(IN);   
+}
+
 sleep(int(rand()*(@ARGV ? $ARGV[0]: 0)));
 
-my $usr = "atks";
+my $usr = $defaultUser;
 
 my %TNODE = ();
 my %cnt = ();
