@@ -63,7 +63,7 @@ else
 }
 
 my %TNODE = ();
-open(IN, "/net/fantasia/home/atks/programs/cluster/good_node_list.txt");
+open(IN, $executablePath . "good_node_list.txt");
 while(<IN>)
 {
     chomp;
@@ -105,7 +105,7 @@ for my $gateway (@gateways)
     for my $job (@jobs)
     {
         my ($user, $pid, $node, $rest) = split(/\s+/, $job);
-        next if ($node =~ /wait/);
+        next if ($node =~ /wait|here/);
 
         if ($gateway eq "slurm")
         {

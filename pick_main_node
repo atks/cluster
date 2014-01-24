@@ -53,7 +53,7 @@ my %TNODE = ();
 my %cnt = ();
 my @nodes = ();
 
-open(IN, "/net/fantasia/home/atks/programs/cluster/good_node_list.txt");
+open(IN, $executablePath . "good_node_list.txt");
 while(<IN>)
 {
     chomp;
