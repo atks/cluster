@@ -41,6 +41,7 @@ while(<IN>)
 {
     my ($user, $pid, $node) = split(/\s+/);
     
+    next if $node eq "here";
     $cnt[$node-10]++;
 }
 close IN;
