@@ -64,7 +64,7 @@ while(<IN>)
 }
 close(IN);
 
-for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm")
+for my $gateway ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm")
 {
     my $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
     if ($gateway eq "slurm")
