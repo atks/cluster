@@ -51,7 +51,7 @@ while(<IN>)
 close(IN);
 
 
-for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm", "1000g", "assembly", "bipolar", "psoriasis", "t2dgenes", "got2d", "hunt", "amd", "sardinia", "twins", "esp")
+for my $gateway ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm", "1000g", "assembly", "bipolar", "psoriasis", "t2dgenes", "got2d", "hunt", "amd", "sardinia", "twins", "esp")
 {
     my $cmd = "";
     if ($gateway eq "slurm")
@@ -95,7 +95,7 @@ for my $gateway ("fantasia", "wonderland", "snowwhite", "slurm", "1000g", "assem
     
         ++$MINI_LOG{$user};
 
-        if ($gateway =~ /(fantasia|wonderland|snowwhite|slurm)/)
+        if ($gateway =~ /(fantasia|wonderland|snowwhite|dumbo|slurm)/)
         {
             if ($gateway eq "slurm")
             {
