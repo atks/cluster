@@ -55,7 +55,7 @@ my $host = `hostname`;
 my @gateways = ();
 if ($host =~ /(fantasia|wonderland|snowhite)/)
 {
-    @gateways = ("fantasia", "wonderland", "snowwhite", "slurm");
+    @gateways = ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm");
 }
 else
 {
@@ -79,7 +79,7 @@ my $userTotal = 0;
 for my $gateway (@gateways)
 {
     my $cmd;
-    if ($gateway =~ /(fantasia|wonderland|snowwhite)/)
+    if ($gateway =~ /(fantasia|wonderland|snowwhite|dumbo)/)
     {
         if ($host eq $gateway)
         {
@@ -145,7 +145,7 @@ $host =~ s/\s+$//;
 
 print "\n\t$host\n";
 print "\t" . ("=" x length($host)) . "\n";
-if ($host =~ /(fantasia|wonderland|snowwhite)/)
+if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
 {
     print "\tnode  usr(sum)  node  usr(sum)  node  usr(sum) \n";
     my $i = 0;
