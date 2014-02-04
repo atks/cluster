@@ -53,7 +53,7 @@ elsif (@ARGV==1)
 
 my $host = `hostname`;
 my @gateways = ();
-if ($host =~ /(fantasia|wonderland|snowhite)/)
+if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
 {
     @gateways = ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm");
 }
@@ -76,6 +76,7 @@ my %LOG = ();
 my %ULOG = ();
 my $total = 0;
 my $userTotal = 0;
+
 for my $gateway (@gateways)
 {
     my $cmd;
