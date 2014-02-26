@@ -15,11 +15,14 @@ Some useful tools for UM Statgen clusters
 pick_*_nodes are modified from Goo's original scripts.
 
 A) To configure user, create a .config file in the program directory that has your user name.
-   Assume your user name is "atks".
+   
+1. Assume your user name is "atks". Go tot he program directory.
 
-1. cd \<cluster-program-dir\>
+   cd \<cluster-program-dir\>
 
-2. echo "atks" > .config
+2. Write file.
+
+   echo "atks" > .config
 
 B) You will need to generate a public/private RSA key pair 
 and authorize the public key while having no passphrase
