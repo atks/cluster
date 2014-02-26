@@ -36,6 +36,11 @@ if (-e $configFile)
     chomp($defaultUser);
     close(IN);   
 }
+else
+{
+    print STDERR "Please create a .config file containing your user name in the directory of cluster tools.\n";
+    exit(1);
+}
 
 my $usr;
 my $target_usr;

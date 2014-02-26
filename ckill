@@ -1,6 +1,7 @@
 #! /bin/bash
 
-USR=atks
+EXPATH=`dirname $0`
+USR=`cat $EXPATH\/.config`
 mosps -eu | grep $USR | tr -s  ' ' '\t' | cut -f3 | uniq -c
 ps -ef | grep $USR| grep mosbatch | grep -v grep | tr -s  ' ' '\t'  | perl -lane '{print "kill -9 $F[1]"}' | sh
 mosps -eu | grep $USR | tr -s  ' ' '\t'  | perl -lane '{print "kill -9 $F[1]"}' | sh
