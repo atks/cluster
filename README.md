@@ -17,7 +17,7 @@ pick_*_nodes are modified from Goo's original scripts.
 A) To configure user, create a .config file in the program directory that has your user name.
    Assume your user name is "atks".
 
-1. cd <cluster-program-dir>
+1. cd \<cluster-program-dir\>
 
 2. echo "atks" > .config
 
