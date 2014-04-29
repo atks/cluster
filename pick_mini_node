@@ -36,6 +36,13 @@ my @cnt = (0, 0, 0, 0);
 my $min = 10000;
 my $pick = 0;
 
+my $host = `hostname`;
+
+if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
+{
+    die "Not a mini cluster\n";
+}
+
 open(IN, "mosps -eu |tail -n +2|");
 while(<IN>)
 {

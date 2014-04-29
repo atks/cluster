@@ -36,6 +36,13 @@ my @cnt = (0, 0, 0, 0, 0, 0, 0, 0);
 my $min = 10000;
 my $pick = 0;
 
+my $host = `hostname`;
+
+if ($host ne "bipolar" || $host ne "sardinia")
+{
+    die "Not bipolar or sardinia mini cluster\n";
+}
+
 open(IN, "mosps -eu |tail -n +2|");
 while(<IN>)
 {
