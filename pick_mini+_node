@@ -37,8 +37,9 @@ my $min = 10000;
 my $pick = 0;
 
 my $host = `hostname`;
+chomp($host);
 
-if ($host ne "bipolar" || $host ne "sardinia")
+if ($host ne "bipolar" && $host ne "sardinia")
 {
     die "Not bipolar or sardinia mini cluster\n";
 }

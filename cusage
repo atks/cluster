@@ -79,7 +79,7 @@ for my $gateway ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm", "1000g
 
         if ($gateway eq "slurm")
         {   
-            if ($node eq "(None)")
+            if ($node =~ /\(.+\)/)
             {
                 next;
             }
