@@ -115,6 +115,11 @@ for my $gateway (@gateways)
 
         if ($gateway eq "slurm")
         {
+            if ($node =~ /\(.+\)/)
+            {
+                next;
+            }
+            
             if (!exists($TNODE{$node}))
             {
                 my $cmd1 = "ssh $usr\@" . "fantasia \"mosctl whois $node\"";
