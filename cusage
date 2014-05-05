@@ -42,7 +42,14 @@ else
     exit(1);
 }
 
-my $acct = @ARGV==1 ? $ARGV[0] : $defaultUser;
+my $acct = $defaultUser;
+
+my @gateways = ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm", "1000g", "assembly", "bipolar", "psoriasis", "t2dgenes", "got2d", "hunt", "amd", "sardinia", "twins", "esp", "frodo");
+
+if (@ARGV>=1)
+{
+    @gateways = @ARGV;
+}
 
 my %LOG;
 
@@ -56,8 +63,7 @@ while(<IN>)
 }
 close(IN);
 
-
-for my $gateway ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm", "1000g", "assembly", "bipolar", "psoriasis", "t2dgenes", "got2d", "hunt", "amd", "sardinia", "twins", "esp", "frodo")
+for my $gateway (@gateways)
 {
     my $cmd = "";
     if ($gateway eq "slurm")

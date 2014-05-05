@@ -1,1 +1,5 @@
-mosbatch -E/tmp -r$1 /bin/bash -c "top -b -n1"
+#! /bin/bash
+
+EXPATH=`dirname $0`
+USR=`cat $EXPATH\/.config`
+mosbatch -E/tmp -r$1 /bin/bash -c "top -b -n1 | grep -P 'PID|$USER'"
