@@ -55,22 +55,21 @@ open(OUT, ">good_node_list.txt") || die "Cannot open good_node_list.txt";
 
 for my $node (@nodes)
 {
+    if ($host!~/fantasia|wonderland|snowwhite|dumbo/)
+    {
+        print STDERR "please run on fantasia, wonderland, snowwhite or dumbo";
+    }
+    
     my $cmd = "";
     my $newNode = "";
-        
-    if ($host =~/fantasia|wonderland|snowwhite/)
-    {
-        $cmd = "mosctl whois $node";
-        $newNode = `$cmd`;
-    }
-    else
-    {
-        $cmd = "ssh $acct\@" . "fantasia \"mosctl whois $node\"";
-        $newNode = `$cmd`;
-    }
     
+    $cmd = "mosctl -E/tmp -r$node /bin/bash -c \"ls\" | grep ";
+    $newNode = `$cmd`;
     $newNode =~ /\(([^\)]+)\.csgstat\.sph\.umich\.edu\)/;
-    
+            
+    $cmd = "mosctl whois $node";
+    $newNode = `$cmd`;
+    $newNode =~ /\(([^\)]+)\.csgstat\.sph\.umich\.edu\)/;
     
     print OUT "$node\t$1\n";
 }
