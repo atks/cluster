@@ -91,7 +91,7 @@ for my $gateway ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm")
         
         if ($gateway eq "slurm")
         {
-            if ($node eq "(None)")
+            if ($node eq "(None)" || $node eq "(Resources)")
             {
                 next;
             }

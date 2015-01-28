@@ -28,7 +28,7 @@ use warnings;
 my $line = `/net/fantasia/home/atks/programs/cluster/cusage 1000g | grep jobs`;
 $line =~ /(\d+)/;
 my $noJobs = $1;
-if ($noJobs < 100)
+if ($noJobs < 20)
 {
     my $a = print `echo "$noJobs jobs currently running on 1000g" | mail -s "1000g cluster usage alert" atks\@umich.edu`;
 }
