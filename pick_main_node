@@ -91,7 +91,7 @@ for my $gateway ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm")
         
         if ($gateway eq "slurm")
         {
-            if ($node eq "(None)" || $node eq "(Resources)")
+            if ($node eq "(None)" || $node eq "(Resources)" || $node !~ /\d+/)
             {
                 next;
             }
@@ -99,7 +99,7 @@ for my $gateway ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm")
             if (!exists($TNODE{$node})) 
             {
                 my $cmd1 = "ssh $usr\@" . "fantasia \"mosctl whois $node\"";
-                print $cmd1 . "\n";
+                #print $cmd1 . "\n";
                 my $newNode = `$cmd1`;
                 $TNODE{$node} = $newNode;
                 $node = $newNode;
