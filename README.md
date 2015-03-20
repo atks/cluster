@@ -1,6 +1,8 @@
 cluster
 =======
 
+More help on: https://statgen.sph.umich.edu/wiki/Cluster_tools
+
 Some useful tools for UM Statgen clusters
 
 * ckill                     kills mosbatch jobs that are sleeping on the gateway and those active on the cluster nodes.
