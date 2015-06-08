@@ -70,10 +70,10 @@ for my $gateway (@gateways)
     {
         $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
     }
-#    elsif ($gateway =~ /(1000g|got2d)/)
-#    {
-#        $cmd = "squeue | grep $gateway | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
-#    }    
+    elsif ($gateway =~ /(1000g|got2d|amd|esp|sardinia|psoriasis)/)
+    {
+        $cmd = "squeue | grep $gateway | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
+    }    
     else
     {
         $cmd = "ssh $acct@" . $gateway . " 'mosps -eu | tail -n +2'";
