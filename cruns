@@ -64,6 +64,7 @@ if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
 }
 else
 {
+    chomp($host);    
     push(@gateways, $host);
 }
 
@@ -82,6 +83,7 @@ my %ULOG = ();
 my $total = 0;
 my $userTotal = 0;
 
+#count jobs
 for my $gateway (@gateways)
 {
     my $cmd;
@@ -98,7 +100,11 @@ for my $gateway (@gateways)
     }
     elsif ($gateway eq "slurm")
     {
-        $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
+        $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f5,9,2 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
+    }
+    elsif ($gateway =~ /(1000g|got2d)/)
+    {
+        $cmd = "squeue | grep $gateway | tr -s ' ' '\\t'  | cut -f3,5,9 ";
     }
     else
     {
@@ -110,7 +116,9 @@ for my $gateway (@gateways)
     my @jobs = split("\n", $c);
     for my $job (@jobs)
     {
-        my ($user, $pid, $node, $rest) = split(/\s+/, $job);
+        
+        print "JOB:$job\n";
+        my ($cluster, $user, $node,  $rest) = split(/\s+/, $job);
         next if ($node =~ /wait|here/);
 
         if ($gateway eq "slurm")
@@ -174,7 +182,7 @@ if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
 else
 {
     print "\tnode  usr(sum)\n";
-    for my $node (sort {$a <=> $b} keys(%LOG))
+    for my $node (sort {$a cmp $b} keys(%LOG))
     {
         printf("\t%4s  %3d(%3d)\n", $node, $ULOG{$node}, $LOG{$node});
     }

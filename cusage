@@ -70,6 +70,10 @@ for my $gateway (@gateways)
     {
         $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
     }
+#    elsif ($gateway =~ /(1000g|got2d)/)
+#    {
+#        $cmd = "squeue | grep $gateway | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
+#    }    
     else
     {
         $cmd = "ssh $acct@" . $gateway . " 'mosps -eu | tail -n +2'";
@@ -90,8 +94,10 @@ for my $gateway (@gateways)
                 next;
             }
             
-            if (!exists($TNODE{$node})) 
+            if ($node!~/$gateway-mc\d+/  && !exists($TNODE{$node})) 
             {
+                print STDERR "$node\n";
+                
                 my $cmd1 = "ssh $acct\@" . "fantasia \"mosctl whois $node\"";
                 
                 print $cmd1 . "\n";
