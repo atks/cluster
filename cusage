@@ -68,7 +68,7 @@ for my $gateway (@gateways)
     my $cmd = "";
     if ($gateway eq "slurm")
     {
-        $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
+        $cmd = "squeue | tail -n +2 | grep -P \"main|nomosix\" | tr -s ' ' '\\t'  | cut -f2,5,9 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
     }
     elsif ($gateway =~ /(1000g|got2d|amd|esp|sardinia|psoriasis)/)
     {
@@ -88,15 +88,17 @@ for my $gateway (@gateways)
         my ($user, $pid, $node, $rest) = split(/\s+/, $job);
 
         if ($gateway eq "slurm")
-        {   
+        {
+            #scyth waiting nodes  
+            #(Priority) (Resources)
             if ($node =~ /\(.+\)/)
             {
                 next;
             }
             
-            if ($node!~/$gateway-mc\d+/  && !exists($TNODE{$node})) 
+            if ($node!~/-mc\d+$/ && $gateway ne "slurm" && !exists($TNODE{$node})) 
             {
-                print STDERR "$node\n";
+                print STDERR "$gateway = $node\n";
                 
                 my $cmd1 = "ssh $acct\@" . "fantasia \"mosctl whois $node\"";
                 
