@@ -102,7 +102,7 @@ for my $gateway (@gateways)
     {
         $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f5,9,2 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
     }
-    elsif ($gateway =~ /(1000g|got2d|amd|esp|sardinia|psoriasis)/)
+    elsif ($gateway =~ /(1000g|got2d|amd|esp|sardinia|psoriasis|topmed)/)
     {
         $cmd = "squeue | grep $gateway | tr -s ' ' '\\t'  | cut -f3,5,9 ";
     }
