@@ -34,7 +34,7 @@ if (-e $configFile)
     open(IN, $configFile) || die "Cannot open config file";
     $defaultUser = <IN>;
     chomp($defaultUser);
-    close(IN);   
+    close(IN);
 }
 else
 {
@@ -64,7 +64,7 @@ if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
 }
 else
 {
-    chomp($host);    
+    chomp($host);
     push(@gateways, $host);
 }
 
@@ -121,18 +121,37 @@ for my $gateway (@gateways)
 
         if ($gateway eq "slurm")
         {
-            if ($node =~ /\(.+\)/)
-            {
-                next;
-            }
-            
             if (!exists($TNODE{$node}))
             {
-                my $cmd1 = "ssh $usr\@" . "fantasia \"mosctl whois $node\"";
-                print $cmd1 . "\n";
-                my $newNode = `$cmd1`;
-                $TNODE{$node} = $newNode;
-                $node = $newNode;
+                if ($node=~/-mc\d\d/)
+                {
+                    $TNODE{$node} = $node;
+                }
+                elsif ($node=~/r\d\d\d\d/)
+                {
+                    $TNODE{$node} = $node;
+                }
+                elsif ($node=~/topmed/)
+                {
+                    $TNODE{$node} = $node;
+                }
+                elsif ($node=~/\(.+\)/)
+                {
+                    $TNODE{$node} = $node;
+                }
+                else
+                {
+                    my $cmd1 = "ssh $usr\@" . "fantasia \"mosctl whois $node\"";
+                    print $cmd1 . "\n";
+                    my $newNode = `$cmd1`;
+
+                    if ($newNode eq "")
+                    {
+                        $newNode = $node;
+                    }
+                    $TNODE{$node} = $newNode;
+                    $node = $newNode;
+                }
             }
             else
             {
@@ -164,17 +183,17 @@ print "\n\t$host\n";
 print "\t" . ("=" x length($host)) . "\n";
 if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
 {
-    print "\tnode  usr(sum)  node  usr(sum)  node  usr(sum) \n";
+    printf("\t%25s   usr(sum)    %25s  usr(sum)     %25s  usr(sum)\n", "node", "node", "node");
     my $i = 0;
     for my $node (sort {$LOG{$b} <=> $LOG{$a}} keys(%LOG))
     {
         print "\n" if ($i!=0 && $i%3==0);
-        printf("\t%4s  %3d(%3d)", $node, $ULOG{$node}, $LOG{$node});
+        printf("\t%25s  %3d(%3d)", $node, $ULOG{$node}, $LOG{$node});
 
         ++$i;
     }
     print "\n\n";
-    printf("\t%8s: %4d jobs\n", $target_usr, $userTotal);
+    printf("\t%8s: %d jobs\n", $target_usr, $userTotal);
     printf("\t   total: %4d jobs\n\n", $total);
 }
 else
