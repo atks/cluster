@@ -63,15 +63,39 @@ for my $node (@nodes)
     my $cmd = "";
     my $newNode = "";
     
-    $cmd = "mosctl -E/tmp -r$node /bin/bash -c \"ls\" | grep ";
-    $newNode = `$cmd`;
-    $newNode =~ /\(([^\)]+)\.csgstat\.sph\.umich\.edu\)/;
-            
     $cmd = "mosctl whois $node";
     $newNode = `$cmd`;
     $newNode =~ /\(([^\)]+)\.csgstat\.sph\.umich\.edu\)/;
     
     print OUT "$node\t$1\n";
 }
+
+for my $miniCluster ("1000g", "sardinia","esp", "amd", "psoriasis", "finnseq", "bipolar", "t2dgenes", "twins", "assembly", "got2d")
+{
+    for my $i (1,2,3,4)
+    {
+        print OUT "$miniCluster-mc0$i\t$miniCluster-mc0$i\n";
+    }
+}
+
+print OUT "topmed\ttopmed\n";
+print OUT "(Priority)\t(Priority)\n";
+print OUT "(QOSMaxCpusPerUserLimit)\t(QOSMaxCpusPerUserLimit)\n";
+print OUT "(Resources)\t(Resources)\n";
+print OUT "(None)\t(None)\n";
+print OUT "r6306\tr6306\n";
+print OUT "r6314\tr6314\n";
+print OUT "r6312\tr6312\n";
+print OUT "r6309\tr6309\n";
+print OUT "r6310\tr6310\n";
+print OUT "r6304\tr6304\n";
+print OUT "r6303\tr6303\n";
+print OUT "r6302\tr6302\n";
+print OUT "r6311\tr6311\n";
+print OUT "r6315\tr6315\n";
+print OUT "r6308\tr6308\n";
+print OUT "r6301\tr6301\n";
+print OUT "r6313\tr6313\n";
+print OUT "r6305\tr6305\n";
 
 close(OUT);

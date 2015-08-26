@@ -69,17 +69,19 @@ else
 }
 
 my %TNODE = ();
+my %LOG = ();
+my %ULOG = ();
 open(IN, $executablePath . "good_node_list.txt");
 while(<IN>)
 {
     chomp;
     my ($node, $newNode) = split("\t");
     $TNODE{$newNode} = $node;
+    $LOG{$node} = 0;
+    $ULOG{$node} = 0;
 }
 close(IN);
 
-my %LOG = ();
-my %ULOG = ();
 my $total = 0;
 my $userTotal = 0;
 
@@ -87,6 +89,7 @@ my $userTotal = 0;
 for my $gateway (@gateways)
 {
     my $cmd;
+    my $c;
     if ($gateway =~ /(fantasia|wonderland|snowwhite|dumbo)/)
     {
         if ($host eq $gateway)
@@ -97,22 +100,41 @@ for my $gateway (@gateways)
         {
             $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
         }
+        
+        $c = `$cmd`;
+        
+#        $cmd = "ssh $usr@" . "sardinia 'mosps -eu | tail -n +2'";
+#        my $c1 = `$cmd`;
+#        $c .= "\n$c1";
+#        
+#        $cmd = "ssh $usr@" . "bipolar 'mosps -eu | tail -n +2'";
+#        $c1 = `$cmd`;
+#        $c .= "\n$c1";
+#        
+#        $cmd = "ssh $usr@" . "esp 'mosps -eu | tail -n +2'";
+#        $c1 = `$cmd`;
+#        $c .= "\n$c1";        
     }
     elsif ($gateway eq "slurm")
     {
         $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f5,9,2 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
+        $c = `$cmd`;
     }
-    elsif ($gateway =~ /(1000g|got2d|amd|esp|sardinia|psoriasis|topmed)/)
+    elsif ($gateway =~ /(1000g|got2d|amd|psoriasis|topmed)/)
     {
         $cmd = "squeue | grep $gateway | tr -s ' ' '\\t'  | cut -f3,5,9 ";
+        $c = `$cmd`;
     }
-    else
+    elsif ($gateway =~ /(sardinia|esp)/)
     {
-        $cmd = "mosps -eu | tail -n +2"
+        $cmd = "mosps -eu | tail -n +2";
+        my $c1 = `$cmd`;
+        $cmd = "squeue | grep $gateway | tr -s ' ' '\\t'  | cut -f3,5,9 ";
+        my $c2 = `$cmd`;
+
+        $c = "$c1\n$c2";
     }
-
-    my $c = `$cmd`;
-
+   
     my @jobs = split("\n", $c);
     for my $job (@jobs)
     {
@@ -123,6 +145,8 @@ for my $gateway (@gateways)
         {
             if (!exists($TNODE{$node}))
             {
+                print STDERR "adding $node\n";
+                
                 if ($node=~/-mc\d\d/)
                 {
                     $TNODE{$node} = $node;
@@ -183,12 +207,12 @@ print "\n\t$host\n";
 print "\t" . ("=" x length($host)) . "\n";
 if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
 {
-    printf("\t%25s   usr(sum)    %25s  usr(sum)     %25s  usr(sum)\n", "node", "node", "node");
+    printf("\t%25s    usr(sum)   %25s    usr(sum)   %25s    usr(sum)\n", "node", "node", "node");
     my $i = 0;
     for my $node (sort {$LOG{$b} <=> $LOG{$a}} keys(%LOG))
     {
         print "\n" if ($i!=0 && $i%3==0);
-        printf("\t%25s  %3d(%3d)", $node, $ULOG{$node}, $LOG{$node});
+        printf("\t%25s  %4d(%4d)", $node, $ULOG{$node}, $LOG{$node});
 
         ++$i;
     }
@@ -201,7 +225,10 @@ else
     print "\tnode  usr(sum)\n";
     for my $node (sort {$a cmp $b} keys(%LOG))
     {
-        printf("\t%4s  %3d(%3d)\n", $node, $ULOG{$node}, $LOG{$node});
+        if ($ULOG{$node}!=0 || $node=~/$host/)
+        {
+            printf("\t%4s  %3d(%3d)\n", $node, $ULOG{$node}, $LOG{$node});
+        }
     }
     print "\n";
     printf("\t%8s: %4d jobs\n", $target_usr, $userTotal);
