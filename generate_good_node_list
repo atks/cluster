@@ -34,7 +34,7 @@ if (-e $configFile)
     open(IN, $configFile) || die "Cannot open config file";
     $defaultUser = <IN>;
     chomp($defaultUser);
-    close(IN);   
+    close(IN);
 }
 else
 {
@@ -59,30 +59,53 @@ for my $node (@nodes)
     {
         print STDERR "please run on fantasia, wonderland, snowwhite or dumbo";
     }
-    
+
     my $cmd = "";
     my $newNode = "";
-    
+
     $cmd = "mosctl whois $node";
     $newNode = `$cmd`;
     $newNode =~ /\(([^\)]+)\.csgstat\.sph\.umich\.edu\)/;
-    
+
+    if (!defined($1))
+    {
+        print "$newNode\n";
+        next;
+    }
+
     print OUT "$node\t$1\n";
 }
 
 for my $miniCluster ("1000g", "sardinia","esp", "amd", "psoriasis", "finnseq", "bipolar", "t2dgenes", "twins", "assembly", "got2d")
 {
+    print OUT "$miniCluster\t$miniCluster\n";
+
     for my $i (1,2,3,4)
     {
-        print OUT "$miniCluster-mc0$i\t$miniCluster-mc0$i\n";
+        print OUT "$miniCluster-1" . ($i-1)  . "\t$miniCluster-mc0$i\n";
+    }
+
+    if ($miniCluster eq "bipolar")
+    {
+        for my $i (5,6,7,8)
+        {
+            print OUT "$miniCluster-1" . ($i-1)  . "\t$miniCluster-mc0$i\n";
+        }
     }
 }
 
+
+print OUT "1\tfantasia\n";
+print OUT "2\tsnowhite\n";
+print OUT "3\twonderland\n";
+print OUT "4\tdumbo\n";
+print OUT "rescheduling\trescheduling\n";
 print OUT "topmed\ttopmed\n";
 print OUT "(Priority)\t(Priority)\n";
 print OUT "(QOSMaxCpusPerUserLimit)\t(QOSMaxCpusPerUserLimit)\n";
 print OUT "(Resources)\t(Resources)\n";
 print OUT "(None)\t(None)\n";
+print OUT "Bwait\tBwait\n";
 print OUT "r6306\tr6306\n";
 print OUT "r6314\tr6314\n";
 print OUT "r6312\tr6312\n";

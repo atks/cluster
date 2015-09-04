@@ -44,6 +44,7 @@ else
 
 my $usr;
 my $target_usr;
+my $unordered = 0;
 
 if (@ARGV==0)
 {
@@ -52,34 +53,37 @@ if (@ARGV==0)
 }
 elsif (@ARGV==1)
 {
-    $usr = $defaultUser;
-    $target_usr = $ARGV[0];
+    if ($ARGV[0] eq "-u")
+    {
+        $unordered = 1;
+        $usr = $defaultUser;
+        $target_usr = $defaultUser;
+    }
+    else
+    {    
+        $usr = $defaultUser;
+        $target_usr = $ARGV[0];
+    }
 }
 
-my $host = `hostname`;
-my @gateways = ();
-if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
-{
-    @gateways = ("fantasia", "wonderland", "snowwhite", "dumbo", "slurm");
-}
-else
-{
-    chomp($host);
-    push(@gateways, $host);
-}
+my @gateways = ("slurm", "fantasia", "wonderland", "snowwhite", "dumbo", "sardinia", "bipolar", "esp");
 
+#translates mnode to snode
 my %TNODE = ();
 my %LOG = ();
 my %ULOG = ();
+my @NODES = ();
 open(IN, $executablePath . "good_node_list.txt");
 while(<IN>)
 {
     chomp;
-    my ($node, $newNode) = split("\t");
-    $TNODE{$newNode} = $node;
-    $LOG{$node} = 0;
-    $ULOG{$node} = 0;
+    my ($mnode, $snode) = split("\t");
+    $TNODE{$mnode} = $snode;
+    $LOG{$snode} = 0;
+    $ULOG{$snode} = 0;
+    push(@NODES, $snode);
 }
+
 close(IN);
 
 my $total = 0;
@@ -90,104 +94,73 @@ for my $gateway (@gateways)
 {
     my $cmd;
     my $c;
-    if ($gateway =~ /(fantasia|wonderland|snowwhite|dumbo)/)
-    {
-        if ($host eq $gateway)
-        {
-            $cmd = "mosps -eu | tail -n +2"
-        }
-        else
-        {
-            $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
-        }
-        
-        $c = `$cmd`;
-        
-#        $cmd = "ssh $usr@" . "sardinia 'mosps -eu | tail -n +2'";
-#        my $c1 = `$cmd`;
-#        $c .= "\n$c1";
-#        
-#        $cmd = "ssh $usr@" . "bipolar 'mosps -eu | tail -n +2'";
-#        $c1 = `$cmd`;
-#        $c .= "\n$c1";
-#        
-#        $cmd = "ssh $usr@" . "esp 'mosps -eu | tail -n +2'";
-#        $c1 = `$cmd`;
-#        $c .= "\n$c1";        
-    }
-    elsif ($gateway eq "slurm")
+    my $miniCluster = "";
+    if ($gateway eq "slurm")
     {
         $cmd = "squeue | tail -n +2 | tr -s ' ' '\\t'  | cut -f5,9,2 | perl -lane '{print \"\$F[1]\\t\$F[0]\\t\$F[2]\"}'";
         $c = `$cmd`;
     }
-    elsif ($gateway =~ /(1000g|got2d|amd|psoriasis|topmed)/)
+    elsif ($gateway =~ /(fantasia|wonderland|snowwhite|dumbo)/)
     {
-        $cmd = "squeue | grep $gateway | tr -s ' ' '\\t'  | cut -f3,5,9 ";
+        $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
         $c = `$cmd`;
     }
-    elsif ($gateway =~ /(sardinia|esp)/)
+    else #miniclusters under mosix
     {
-        $cmd = "mosps -eu | tail -n +2";
-        my $c1 = `$cmd`;
-        $cmd = "squeue | grep $gateway | tr -s ' ' '\\t'  | cut -f3,5,9 ";
-        my $c2 = `$cmd`;
-
-        $c = "$c1\n$c2";
+        $cmd = "ssh $usr@" . $gateway . " 'mosps -eu | tail -n +2'";
+        $miniCluster = "$gateway-";
+        $c = `$cmd`;
     }
-   
+
     my @jobs = split("\n", $c);
     for my $job (@jobs)
     {
-        my ($cluster, $user, $node,  $rest) = split(/\s+/, $job);
-        next if ($node =~ /wait|here/);
+        my ($user, $jobid, $node, $rest) = split(/\s+/, $job);
 
-        if ($gateway eq "slurm")
+        $node = $node eq "here" ? $gateway : "$miniCluster$node";
+
+        if ($node=~/^\(job/)
+        {
+            $node = "rescheduling";
+        }
+
+        #weird case
+        if ($node eq "")
+        {
+            next;
+        }
+
+        if ($gateway ne "slurm")
         {
             if (!exists($TNODE{$node}))
             {
-                print STDERR "adding $node\n";
-                
-                if ($node=~/-mc\d\d/)
-                {
-                    $TNODE{$node} = $node;
-                }
-                elsif ($node=~/r\d\d\d\d/)
-                {
-                    $TNODE{$node} = $node;
-                }
-                elsif ($node=~/topmed/)
-                {
-                    $TNODE{$node} = $node;
-                }
-                elsif ($node=~/\(.+\)/)
-                {
-                    $TNODE{$node} = $node;
-                }
-                else
-                {
-                    my $cmd1 = "ssh $usr\@" . "fantasia \"mosctl whois $node\"";
-                    print $cmd1 . "\n";
-                    my $newNode = `$cmd1`;
-
-                    if ($newNode eq "")
-                    {
-                        $newNode = $node;
-                    }
-                    $TNODE{$node} = $newNode;
-                    $node = $newNode;
-                }
+               print STDERR "missing $node in translation\n";
+               print STDERR "gateway: $gateway\n";
+               print STDERR "job: $job\n";
+               $LOG{$node} = 0;
+               $ULOG{$node} = 0;
+               $TNODE{$node} = $node;
+               push(@NODES, $node);
             }
             else
             {
                 $node = $TNODE{$node};
             }
         }
-
-        if (!exists($LOG{$node}))
+        else
         {
-            $LOG{$node} = 0;
-            $ULOG{$node} = 0;
+            if (!exists($ULOG{$node}))
+            {
+               print STDERR "missing $node in slurm\n";
+               print STDERR "$job\n";
+               $LOG{$node} = 0;
+               $ULOG{$node} = 0;
+               $TNODE{$node} = $node;
+               push(@NODES, $node);
+            }
         }
+
+        #print "CHECK: $gateway, $user, $node\n";
 
         if ($user eq $target_usr)
         {
@@ -200,20 +173,16 @@ for my $gateway (@gateways)
     }
 }
 
-$host =~ s/^\s+//;
-$host =~ s/\s+$//;
-
-print "\n\t$host\n";
-print "\t" . ("=" x length($host)) . "\n";
-if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
+if (!$unordered)
 {
+    print "\n";
     printf("\t%25s    usr(sum)   %25s    usr(sum)   %25s    usr(sum)\n", "node", "node", "node");
     my $i = 0;
     for my $node (sort {$LOG{$b} <=> $LOG{$a}} keys(%LOG))
     {
         print "\n" if ($i!=0 && $i%3==0);
         printf("\t%25s  %4d(%4d)", $node, $ULOG{$node}, $LOG{$node});
-
+    
         ++$i;
     }
     print "\n\n";
@@ -222,15 +191,17 @@ if ($host =~ /(fantasia|wonderland|snowwhite|dumbo)/)
 }
 else
 {
-    print "\tnode  usr(sum)\n";
-    for my $node (sort {$a cmp $b} keys(%LOG))
-    {
-        if ($ULOG{$node}!=0 || $node=~/$host/)
-        {
-            printf("\t%4s  %3d(%3d)\n", $node, $ULOG{$node}, $LOG{$node});
-        }
-    }
     print "\n";
-    printf("\t%8s: %4d jobs\n", $target_usr, $userTotal);
+    printf("\t%25s    usr(sum)   %25s    usr(sum)   %25s    usr(sum)\n", "node", "node", "node");
+    my $i = 0;
+    for my $node (@NODES)
+    {
+        print "\n" if ($i!=0 && $i%3==0);
+        printf("\t%25s  %4d(%4d)", $node, $ULOG{$node}, $LOG{$node});
+    
+        ++$i;
+    }
+    print "\n\n";
+    printf("\t%8s: %d jobs\n", $target_usr, $userTotal);
     printf("\t   total: %4d jobs\n\n", $total);
 }
